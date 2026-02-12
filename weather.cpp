@@ -117,16 +117,33 @@ void drawWeatherBlock(TFT_eSPI &tft) {
 
 // Описание погоды 
 void drawWeatherDescription(TFT_eSPI &tft) {
-    if (description == lastDescription) return;
 
-    int descY = DESC_Y + UI_SHIFT_Y;
-    tft.fillRect(UI_MARGIN_X, descY, 320 - UI_MARGIN_X*2, DESC_H, TFT_BLACK);
+    if (description == lastDescription) return;
 
     tft.setTextFont(4);
     tft.setTextColor(TFT_WHITE, TFT_BLACK);
 
-    int textW = tft.textWidth(description.c_str(), 4);
-    tft.setCursor((320 - textW)/2, descY + (DESC_H - tft.fontHeight())/2+5);
+    int fontH = tft.fontHeight();
+    int descY = DESC_Y + UI_SHIFT_Y;
+    int textY = descY + (DESC_H - fontH) / 2;
+
+    // --- очищаем область предыдущего текста ---
+    if (lastDescription.length() > 0) {
+        int oldW = tft.textWidth(lastDescription.c_str(), 4);
+        int oldX = (320 - oldW) / 2;
+
+        tft.fillRect(oldX,
+                     textY - 2,
+                     oldW,
+                     fontH + 4,
+                     TFT_BLACK);
+    }
+
+    // --- рисуем новый текст ---
+    int newW = tft.textWidth(description.c_str(), 4);
+    int newX = (320 - newW) / 2;
+
+    tft.setCursor(newX, textY);
     tft.print(description);
 
     lastDescription = description;
@@ -137,3 +154,4 @@ void updateWeatherUI(TFT_eSPI &tft) {
     drawWeatherBlock(tft);
     drawWeatherDescription(tft);
 }
+
